@@ -59,6 +59,7 @@ def pick_nearest_mob(dets):
     return best
 
 
+
 def main():
     ser = serial.Serial(COM_PORT, BAUD_RATE, timeout = 1)
     print("[🤖 BOT] Запущено. Натисни Ctrl+C щоб зупинити.")

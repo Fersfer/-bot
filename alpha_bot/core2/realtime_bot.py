@@ -1,14 +1,8 @@
 from yolo_detector import grab_screen, detect_objects
-from esp_control import send
+from alpha_bot.core2.esp_control import send
 import time
-import serial
-import numpy as np
-import mss
-from ultralytics import YOLO
-import pyautogui
-import serial
 
-MODEL_PATH = r"D:/mob_detector/mob_detector/yolov8n_mob22/weights/best.pt"
+MODEL_PATH = r"/mob_detector/yolov8n_mob22/weights/best.pt"
 COM_PORT = "COM6"
 BAUD_RATE = 115200
 TARGET_CLASS = 'mob'

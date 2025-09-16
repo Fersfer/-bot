@@ -1,7 +1,7 @@
 # core/strategy.py
 
-from bot.core.vision import Vision
-from bot.core.esp_controller import EspController
+from alpha_bot.core.vision import Vision
+from alpha_bot.core.esp_controller import EspController
 import time
 
 class BotStrategy:
