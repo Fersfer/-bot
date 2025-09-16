@@ -1,0 +1,14 @@
+path: D:/mob_detector/dataset
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 6
+names: ['buf', 'char', 'mob', 'my_HP', 'target_HP', 'to_vilage']
+
+roboflow:
+  workspace: yolo-75p0i
+  project: my-first-project-sg9zr
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/yolo-75p0i/my-first-project-sg9zr/dataset/1
