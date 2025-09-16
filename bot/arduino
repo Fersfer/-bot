@@ -1,15 +1,186 @@
 #include <BleCombo.h>
+
 // Инициализируем BLE HID объект
-String inputString = ""; // для накопления данныхbool stringComplete = false; // флаг что строка готова
-void setup() { Serial.begin(115200); Serial.println("Starting work!"); Keyboard.begin(); Serial.println("Waiting for BLE connection...");}
-void loop() { // Проверяем подключение BLE if (Keyboard.isConnected()) { // Читаем данные из Serial if (Serial.available()) { char inChar = (char)Serial.read(); // Если получен символ новой строки - команда готова if (inChar == '\n') { stringComplete = true; } else { // Добавляем символ к текущей строке inputString += inChar; } } // Когда получена вся команда - обрабатываем if (stringComplete) { handleCommand(inputString); inputString = ""; stringComplete = false; } } else { Serial.println("Waiting for BLE connection..."); delay(1000); }}
-// Обробка командvoid handleCommand(String command) { command.trim(); // Прибираємо пробіли Serial.print("Отримано: "); Serial.println(command);
- // Клавіші if (command == "F1") { Keyboard.write(KEY_F1); Serial.println("F1 pressed"); } else if (command == "F2") { Keyboard.write(KEY_F2); Serial.println("F2 pressed"); } else if (command == "F3") { Keyboard.write(KEY_F3); Serial.println("F3 pressed"); } else if (command == "F4") { Keyboard.write(KEY_F4); Serial.println("F4 pressed"); } else if (command == "F5") { Keyboard.write(KEY_F5); Serial.println("F5 pressed"); } else if (command == "F6") { Keyboard.write(KEY_F6); Serial.println("F6 pressed"); } else if (command == "F7") { Keyboard.write(KEY_F7); Serial.println("F7 pressed"); }
- // Простий клік else if (command == "MOUSE_LEFT") { Mouse.click(MOUSE_LEFT); Serial.println("Left click"); } else if (command == "MOUSE_RIGHT") { Mouse.click(MOUSE_RIGHT); Serial.println("Right click"); }
- // Рух миші відносно: "MOVE dx dy" else if (command.startsWith("MOVE ")) { int spaceIndex1 = command.indexOf(' '); int spaceIndex2 = command.indexOf(' ', spaceIndex1 + 1); if (spaceIndex2 != -1) { int dx = command.substring(spaceIndex1 + 1, spaceIndex2).toInt(); int dy = command.substring(spaceIndex2 + 1).toInt(); Mouse.move(dx, dy); Serial.print("Миша рух: "); Serial.print(dx); Serial.print(", "); Serial.println(dy); } }
- // Абсолютное перемещение мыши: "MOVE_TO x y" else if (command.startsWith("MOVE_TO ")) { int spaceIndex1 = command.indexOf(' '); int spaceIndex2 = command.indexOf(' ', spaceIndex1 + 1); if (spaceIndex2 != -1) { int x = command.substring(spaceIndex1 + 1, spaceIndex2).toInt(); int y = command.substring(spaceIndex2 + 1).toInt(); // Используем относительное перемещение к абсолютным координатам // (Это приблизительное перемещение) Mouse.move(x, y); Serial.print("Миша переміщена до: "); Serial.print(x); Serial.print(", "); Serial.println(y); } }
- // Переміщення і клік: "CLICK x y" else if (command.startsWith("CLICK ")) { int spaceIndex1 = command.indexOf(' '); int spaceIndex2 = command.indexOf(' ', spaceIndex1 + 1); if (spaceIndex2 != -1) { int x = command.substring(spaceIndex1 + 1, spaceIndex2).toInt(); int y = command.substring(spaceIndex2 + 1).toInt(); // Перемещаем и кликаем Mouse.move(x, y); delay(50); Mouse.click(MOUSE_LEFT); Serial.print("CLICK по координатах: "); Serial.print(x); Serial.print(", "); Serial.println(y); } }
- // Прокрутка: "SCROLL value"
- // Зажать кнопку: "PRESS_LEFT", "RELEASE_LEFT" else if (command == "PRESS_LEFT") { Mouse.press(MOUSE_LEFT); Serial.println("Ліва кнопка зажата"); } else if (command == "RELEASE_LEFT") { Mouse.release(MOUSE_LEFT); Serial.println("Ліва кнопка відпущена"); } else if (command == "PRESS_RIGHT") { Mouse.press(MOUSE_RIGHT); Serial.println("Права кнопка зажата"); } else if (command == "RELEASE_RIGHT") { Mouse.release(MOUSE_RIGHT); Serial.println("Права кнопка відпущена"); }
- // Комбинації клавіш: "HOTKEY ctrl c" else if (command.startsWith("HOTKEY ")) { int spaceIndex1 = command.indexOf(' '); int spaceIndex2 = command.indexOf(' ', spaceIndex1 + 1); if (spaceIndex2 != -1) { String key1 = command.substring(spaceIndex1 + 1, spaceIndex2); String key2 = command.substring(spaceIndex2 + 1); if (key1 == "ctrl" && key2 == "c") { Keyboard.press(KEY_LEFT_CTRL); Keyboard.press('c'); delay(100); Keyboard.releaseAll(); Serial.println("Ctrl+C pressed"); } else if (key1 == "ctrl" && key2 == "v") { Keyboard.press(KEY_LEFT_CTRL); Keyboard.press('v'); delay(100); Keyboard.releaseAll(); Serial.println("Ctrl+V pressed"); } } }
- // Невідома команда else { Serial.println("Невідома команда."); }}
+
+String inputString = "";      // для накопления данных
+bool stringComplete = false;  // флаг что строка готова
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("Starting work!");
+  Keyboard.begin();
+  Serial.println("Waiting for BLE connection...");
+}
+
+void loop() {
+  // Проверяем подключение BLE
+  if (Keyboard.isConnected()) {
+    // Читаем данные из Serial
+    if (Serial.available()) {
+      char inChar = (char)Serial.read();
+      
+      // Если получен символ новой строки - команда готова
+      if (inChar == '\n') {
+        stringComplete = true;
+      } else {
+        // Добавляем символ к текущей строке
+        inputString += inChar;
+      }
+    }
+    
+    // Когда получена вся команда - обрабатываем
+    if (stringComplete) {
+      handleCommand(inputString);
+      inputString = "";
+      stringComplete = false;
+    }
+  } else {
+    Serial.println("Waiting for BLE connection...");
+    delay(1000);
+  }
+}
+
+// Обробка команд
+void handleCommand(String command) {
+  command.trim(); // Прибираємо пробіли
+  Serial.print("Отримано: ");
+  Serial.println(command);
+
+  // Клавіші
+  if (command == "F1") {
+    Keyboard.write(KEY_F1);
+    Serial.println("F1 pressed");
+  }
+  else if (command == "F2") {
+    Keyboard.write(KEY_F2);
+    Serial.println("F2 pressed");
+  }
+  else if (command == "F3") {
+    Keyboard.write(KEY_F3);
+    Serial.println("F3 pressed");
+  }
+  else if (command == "F4") {
+    Keyboard.write(KEY_F4);
+    Serial.println("F4 pressed");
+  }
+  else if (command == "F5") {
+    Keyboard.write(KEY_F5);
+    Serial.println("F5 pressed");
+  }
+  else if (command == "F6") {
+    Keyboard.write(KEY_F6);
+    Serial.println("F6 pressed");
+  }
+  else if (command == "F7") {
+    Keyboard.write(KEY_F7);
+    Serial.println("F7 pressed");
+  }
+
+  // Простий клік
+  else if (command == "MOUSE_LEFT") {
+    Mouse.click(MOUSE_LEFT);
+    Serial.println("Left click");
+  }
+  else if (command == "MOUSE_RIGHT") {
+    Mouse.click(MOUSE_RIGHT);
+    Serial.println("Right click");
+  }
+
+  // Рух миші відносно: "MOVE dx dy"
+  else if (command.startsWith("MOVE ")) {
+    int spaceIndex1 = command.indexOf(' ');
+    int spaceIndex2 = command.indexOf(' ', spaceIndex1 + 1);
+    
+    if (spaceIndex2 != -1) {
+      int dx = command.substring(spaceIndex1 + 1, spaceIndex2).toInt();
+      int dy = command.substring(spaceIndex2 + 1).toInt();
+      Mouse.move(dx, dy);
+      Serial.print("Миша рух: "); Serial.print(dx); Serial.print(", "); Serial.println(dy);
+    }
+  }
+
+  // Абсолютное перемещение мыши: "MOVE_TO x y"
+  else if (command.startsWith("MOVE_TO ")) {
+    int spaceIndex1 = command.indexOf(' ');
+    int spaceIndex2 = command.indexOf(' ', spaceIndex1 + 1);
+    
+    if (spaceIndex2 != -1) {
+      int x = command.substring(spaceIndex1 + 1, spaceIndex2).toInt();
+      int y = command.substring(spaceIndex2 + 1).toInt();
+      
+      // Используем относительное перемещение к абсолютным координатам
+      // (Это приблизительное перемещение)
+      Mouse.move(x, y);
+      Serial.print("Миша переміщена до: "); Serial.print(x); Serial.print(", "); Serial.println(y);
+    }
+  }
+
+  // Переміщення і клік: "CLICK x y"
+  else if (command.startsWith("CLICK ")) {
+    int spaceIndex1 = command.indexOf(' ');
+    int spaceIndex2 = command.indexOf(' ', spaceIndex1 + 1);
+    
+    if (spaceIndex2 != -1) {
+      int x = command.substring(spaceIndex1 + 1, spaceIndex2).toInt();
+      int y = command.substring(spaceIndex2 + 1).toInt();
+      
+      // Перемещаем и кликаем
+      Mouse.move(x, y);
+      delay(50);
+      Mouse.click(MOUSE_LEFT);
+      Serial.print("CLICK по координатах: "); Serial.print(x); Serial.print(", "); Serial.println(y);
+    }
+  }
+
+  // Прокрутка: "SCROLL value"
+ 
+
+  // Зажать кнопку: "PRESS_LEFT", "RELEASE_LEFT"
+  else if (command == "PRESS_LEFT") {
+    Mouse.press(MOUSE_LEFT);
+    Serial.println("Ліва кнопка зажата");
+  }
+  else if (command == "RELEASE_LEFT") {
+    Mouse.release(MOUSE_LEFT);
+    Serial.println("Ліва кнопка відпущена");
+  }
+  else if (command == "PRESS_RIGHT") {
+    Mouse.press(MOUSE_RIGHT);
+    Serial.println("Права кнопка зажата");
+  }
+  else if (command == "RELEASE_RIGHT") {
+    Mouse.release(MOUSE_RIGHT);
+    Serial.println("Права кнопка відпущена");
+  }
+
+  // Комбинації клавіш: "HOTKEY ctrl c"
+  else if (command.startsWith("HOTKEY ")) {
+    int spaceIndex1 = command.indexOf(' ');
+    int spaceIndex2 = command.indexOf(' ', spaceIndex1 + 1);
+    
+    if (spaceIndex2 != -1) {
+      String key1 = command.substring(spaceIndex1 + 1, spaceIndex2);
+      String key2 = command.substring(spaceIndex2 + 1);
+      
+      if (key1 == "ctrl" && key2 == "c") {
+        Keyboard.press(KEY_LEFT_CTRL);
+        Keyboard.press('c');
+        delay(100);
+        Keyboard.releaseAll();
+        Serial.println("Ctrl+C pressed");
+      }
+      else if (key1 == "ctrl" && key2 == "v") {
+        Keyboard.press(KEY_LEFT_CTRL);
+        Keyboard.press('v');
+        delay(100);
+        Keyboard.releaseAll();
+        Serial.println("Ctrl+V pressed");
+      }
+    }
+  }
+
+  // Невідома команда
+  else {
+    Serial.println("Невідома команда.");
+  }
+}
