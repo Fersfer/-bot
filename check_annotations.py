@@ -13,7 +13,7 @@ CLASS_NAMES = {
 
 # === Ввід даних від користувача ===
 images_dir = input(r"D:\mob_detector\auto_new_screens\ ").strip()
-filename = input("screen_20250918_000012.jpg): ").strip()
+filename = input("screen_20250928_165951.jpg): ").strip()
 
 image_path = os.path.join(images_dir, filename)
 label_path = os.path.join(images_dir.replace("images", "labels"), filename.replace(".jpg", ".txt"))

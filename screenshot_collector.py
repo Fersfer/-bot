@@ -8,7 +8,7 @@ save_dir = r"D:\mob_detector\auto_new_screens"
 os.makedirs(save_dir, exist_ok=True)
 
 # 🕓 Як часто робити скріни (секунди)
-delay = 15
+delay = 3
 
 # ⏱ Скільки скріншотів зробити
 num_screens = 3

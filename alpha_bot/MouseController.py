@@ -18,13 +18,21 @@ class MouseController:
 
     def _send_move(self, dx, dy):
         """Надіслати одне відносне переміщення на ESP."""
-        cmd = f"MOVE_REL {int(dx)} {int(dy)}"
+        cmd = f"MOVE {int(dx)} {int(dy)}"
         self.esp.send(cmd)
         # оновити віртуальну позицію
         self.vx += dx
         self.vy += dy
         # невеликий wait для стабільності
-        time.sleep(0.06)
+        time.sleep(0.02)
+
+    def move_to_zero(self):
+        steps = 60
+        dx_step = -1920/steps
+        dy_step = -1080/steps
+
+        for i in range(steps):
+            self._send_move(dx_step, dy_step)
 
     def move_to_target(self, target_x, target_y):
         """
@@ -32,8 +40,8 @@ class MouseController:
         Ми переводимо в відносний рух від віртуальної позиції
         і робимо серію кроків.
         """
-        dx_total = target_x - self.vx
-        dy_total = target_y - self.vy
+        dx_total = target_x #- self.vx
+        dy_total = target_y #- self.vy
 
         dist = math.hypot(dx_total, dy_total)
         if dist == 0:
@@ -56,3 +64,28 @@ class MouseController:
         """Якщо треба синхронізувати віртуальну позицію, викликай це."""
         self.vx = x
         self.vy = y
+
+    def move_to_target_v2(self, target_x, target_y):
+        """
+        target_x, target_y — абсолютні координати (пікселі екрану).
+        Ми переводимо в відносний рух від віртуальної позиції
+        і робимо серію кроків.
+        """
+        dx_total = target_x
+        dy_total = target_y
+        dist = math.hypot(dx_total, dy_total)
+        if dist == 0:
+            return
+
+        # кількість кроків — залежно від step_max
+        steps = max(1, int(math.ceil(dist / self.step_max)))
+
+        dx_step = dx_total / steps
+        dy_step = dy_total / steps
+
+        # лог
+        print(f"📡 MOVE_TO target ({target_x},{target_y}) from ({self.vx:.1f},{self.vy:.1f})"
+              f" total dx,dy=({dx_total:.1f},{dy_total:.1f}) steps={steps}")
+
+        for i in range(steps):
+            self._send_move(dx_step, dy_step)

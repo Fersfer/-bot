@@ -24,9 +24,13 @@ class BotStrategy:
         if mob_coords:
             dx = mob_coords[0] - self.vision.screen_center[0]
             dy = mob_coords[1] - self.vision.screen_center[1]
+            print("смещение",mob_coords[0], mob_coords[1])
+            print("центр екрана", self.vision.screen_center[0], self.vision.screen_center[1])
+
 
             # 3. Навести мишу через ESP
-            self.mouse.move_to_target(dx, dy)
+            self.mouse.move_to_zero()
+            self.mouse.move_to_target_v2(mob_coords[0], mob_coords[1])
             time.sleep(0.2)
 
             # 4. Клік та атака
@@ -35,7 +39,7 @@ class BotStrategy:
             self.esp.send("F3")
 
             # 5. Чекаємо, поки зникне HP
-            for _ in range(20):  # максимум ~10 секунд
+            for k in range(20):  # максимум ~10 секунд
                 time.sleep(0.5)
                 screen = self.vision.grab_screen()
                 results = self.vision.detect(screen)

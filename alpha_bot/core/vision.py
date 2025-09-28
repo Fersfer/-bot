@@ -4,7 +4,6 @@ from ultralytics import YOLO
 import mss
 from PIL import Image
 import cv2
-import numpy as np
 import time
 import os
 
@@ -54,6 +53,7 @@ class Vision:
         return False
 
     def is_hp_bar_present(self, results, class_name='target_HP'):
+        self.save_frame(results)
         return any(results.names[int(cls)] == class_name for cls in results.boxes.cls)
 
     def is_target_hp_low_or_dead(self, results, class_name='target_HP'):
@@ -96,3 +96,13 @@ class Vision:
 
         cv2.imwrite(path, annotated)
         print(f"💾 Збережено скрін смерті моба: {path}")
+
+    def save_frame(self, results):
+        img = results.orig_img.copy()
+        annotated = results.plot()
+
+        os.makedirs("frame_logs", exist_ok=True)
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        path = f"frame_logs/frame_{timestamp}.jpg"
+
+        cv2.imwrite(path, annotated)
