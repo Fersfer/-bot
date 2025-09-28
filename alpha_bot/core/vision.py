@@ -1,5 +1,5 @@
 # core/vision.py
-
+import numpy as np
 from ultralytics import YOLO
 import mss
 from PIL import Image
@@ -19,6 +19,12 @@ class Vision:
             monitor = {"top": 0, "left": 0, "width": 1920, "height": 1080}
             img = sct.grab(monitor)
             return Image.frombytes("RGB", img.size, img.rgb)
+
+    def grab_screen_v2(self):
+        with mss.mss() as sct:
+            monitor = {"top": 0, "left": 0, "width": 1920, "height": 1080}
+            img = sct.grab(monitor)
+            return img
 
     def detect(self, image):
         results = self.model.predict(image, conf=0.4, save=False, verbose=False)
@@ -106,3 +112,72 @@ class Vision:
         path = f"frame_logs/frame_{timestamp}.jpg"
 
         cv2.imwrite(path, annotated)
+
+    def get_red_fill_percentage(self,img, x1, y1, x2, y2):
+        """
+        Вычисляет процент заполнения красными оттенками в заданном прямоугольнике
+        на скриншоте.
+
+        :param image_path: Путь к файлу скриншота.
+        :param x1, y1: Координаты верхнего левого угла прямоугольника.
+        :param x2, y2: Координаты нижнего правого угла прямоугольника.
+        :return: Процент заполнения красным цветом или None в случае ошибки.
+        """
+        img_np = np.array(img)
+        image = cv2.cvtColor(img_np, cv2.COLOR_BGRA2BGR)
+        # Проверка корректности координат
+        height, width, _ = image.shape
+        if not (0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height):
+            print("Ошибка: Некорректные координаты прямоугольника.")
+            return None
+
+        # Вырезаем область интереса (ROI)
+        roi = image[y1:y2, x1:x2]
+
+        # Если ROI пустой (например, из-за некорректных координат), возвращаем 0
+        if roi.shape[0] == 0 or roi.shape[1] == 0:
+            print("Ошибка: Область интереса пуста.")
+            return 0.0
+
+        # Преобразование ROI в HSV
+        hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+
+        # Определение диапазонов для красного цвета в HSV
+        # Красный цвет находится на двух концах спектра HSV
+        lower_red1 = np.array([0, 100, 100])
+        upper_red1 = np.array([10, 255, 255])
+        lower_red2 = np.array([160, 100, 100])
+        upper_red2 = np.array([179, 255, 255])
+
+        # Создание маски для каждого диапазона
+        mask1 = cv2.inRange(hsv_roi, lower_red1, upper_red1)
+        mask2 = cv2.inRange(hsv_roi, lower_red2, upper_red2)
+        # Объединение масок для получения полной маски красного цвета
+        red_mask = cv2.bitwise_or(mask1, mask2)
+
+        # Подсчет количества красных пикселей в ROI
+        # red_mask будет бинарным изображением (0 или 255).
+        # Non-zero count вернет количество пикселей со значением 255 (красные).
+        num_red_pixels = cv2.countNonZero(red_mask)
+
+        # Общее количество пикселей в ROI
+        total_pixels_in_roi = roi.shape[0] * roi.shape[1]
+
+        # Вычисление процента
+        if total_pixels_in_roi == 0:
+            return 0.0
+        percentage = (num_red_pixels / total_pixels_in_roi) * 100
+
+        return percentage
+
+    def get_HP_persantge_mob(self,image):
+         # ХП моба
+         rect_x1, rect_y1, rect_x2, rect_y2 = 786, 2, 1132, 7
+         return self.get_red_fill_percentage(image, rect_x1, rect_y1, rect_x2, rect_y2)
+
+    def get_HP_persantge_pers(self, image):
+         # ХП перса
+         rectp_x1, rectp_y1, rectp_x2, rectp_y2 = 29, 58, 240, 60
+         return self.get_red_fill_percentage(image, rectp_x1, rectp_y1, rectp_x2, rectp_y2)
+
+

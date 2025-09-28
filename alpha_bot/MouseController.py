@@ -53,9 +53,7 @@ class MouseController:
         dx_step = dx_total / steps
         dy_step = dy_total / steps
 
-        # лог
-        print(f"📡 MOVE_TO target ({target_x},{target_y}) from ({self.vx:.1f},{self.vy:.1f})"
-              f" total dx,dy=({dx_total:.1f},{dy_total:.1f}) steps={steps}")
+
 
         for i in range(steps):
             self._send_move(dx_step, dy_step)
@@ -84,8 +82,6 @@ class MouseController:
         dy_step = dy_total / steps
 
         # лог
-        print(f"📡 MOVE_TO target ({target_x},{target_y}) from ({self.vx:.1f},{self.vy:.1f})"
-              f" total dx,dy=({dx_total:.1f},{dy_total:.1f}) steps={steps}")
 
         for i in range(steps):
             self._send_move(dx_step, dy_step)

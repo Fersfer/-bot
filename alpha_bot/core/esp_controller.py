@@ -9,10 +9,10 @@ class EspController:
     def send(self, cmd: str):
         line = (cmd.strip() + '\n').encode()
         self.ser.write(line)
-        print(f"[ESP32] -> {cmd}")
+       #print(f"[ESP32] -> {cmd}")
         # читаємо можливу відповідь (не блокуюче)
         time.sleep(0.03)
-        while self.ser.in_waiting:
+        """while self.ser.in_waiting:
             resp = self.ser.readline().decode(errors='ignore').strip()
             if resp:
-                print(f"[ESP32] <- {resp}")
+                print(f"[ESP32] <- {resp}")"""
