@@ -3,7 +3,7 @@ import cv2
 
 # Завантажуємо модель
 model = YOLO("mob_detector/yolov8n_mob2/weights/best.pt")
-screen_name = "screen_20250911_230247.jpg"
+screen_name = "screen_20250928_165954.jpg"
 
 # Вказуємо шлях до скріна
 img_path = fr"D:\mob_detector\auto_new_screens\{screen_name}"  # 🔁 підстав свій

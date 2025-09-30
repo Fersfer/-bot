@@ -1,20 +1,18 @@
-# core/esp_controller.py
-
-import serial
-import time
+# core/esp_controller.py (фрагмент)
+import serial, time
 
 class EspController:
-    def __init__(self, port='COM4', baudrate=115200):
-        """
-        Клас для надсилання команд на ESP32 по серійному порту.
-        """
-        self.esp = serial.Serial(port, baudrate, timeout=1)
-        time.sleep(2)  # Почекати ініціалізацію
+    def __init__(self, port='COM4', baudrate=115200, timeout=1):
+        self.ser = serial.Serial(port, baudrate, timeout=timeout)
+        time.sleep(2)
 
-    def send(self, command):
-        """
-        Надіслати команду (наприклад, 'F3', 'F5', 'CLICK 200 300')
-        """
-        self.esp.write((command + '\n').encode())
-        print(f"[ESP32] Команда: {command}")
-        time.sleep(0.1)
+    def send(self, cmd: str):
+        line = (cmd.strip() + '\n').encode()
+        self.ser.write(line)
+       #print(f"[ESP32] -> {cmd}")
+        # читаємо можливу відповідь (не блокуюче)
+        time.sleep(0.03)
+        """while self.ser.in_waiting:
+            resp = self.ser.readline().decode(errors='ignore').strip()
+            if resp:
+                print(f"[ESP32] <- {resp}")"""

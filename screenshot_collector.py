@@ -4,14 +4,15 @@ import os
 from datetime import datetime
 
 # 📂 Куди зберігати скріни
-save_dir = "/auto_new_screens"
+save_dir = r"D:\mob_detector\auto_new_screens"
 os.makedirs(save_dir, exist_ok=True)
 
 # 🕓 Як часто робити скріни (секунди)
-delay = 15
+delay = 3
 
 # ⏱ Скільки скріншотів зробити
-num_screens = 100
+num_screens = 10
+
 
 print(f"🚀 Починаємо збирання скріншотів... Кожні {delay} сек.")
 print("🎮 Перейди у вікно гри та не чіпай мишку :)")
